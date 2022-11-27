@@ -1,33 +1,31 @@
 <script lang="ts">
   import Helper from "$lib/components/ui/Helper.svelte";
-  import { settings } from "$lib/stores/settings";
+  import { getSettings } from "$lib/scripts/req";
   import { t, locale, locales } from "$lib/scripts/i18n";
-  $: webname = $settings.webname;
-  $: webtitle = $settings.webtitle;
-  $: webport = $settings.webtitle;
-  $: trustedDomains = $settings.webtitle;
-  $: enablePay = $settings.enablePay;
+  import { onMount } from "svelte";
+  import { apiurl } from "$lib/scripts/req";
+  import { pburl } from "$lib/scripts/req";
 
-  function writeSettings() {
-    let xWebname = document.getElementById("webname").value;
-    console.log(xWebname);
-    $settings.webname = xWebname;
-
-    let xTrustedDomains = document.getElementById("trustedDomains").value;
-    console.log(xTrustedDomains);
-    $settings.trustedDomains = xTrustedDomains;
-
-    let xWebport = document.getElementById("webport").value;
-    console.log(xWebname);
-    $settings.webport = xWebport;
-
-    let xWebtitle = document.getElementById("webtitle").value;
-    console.log(xWebname);
-    $settings.webtitle = xWebtitle;
-
-    let xPayEnable = document.getElementById("payEnable").checked;
-    $settings.webname = xPayEnable;
+  function readSettings() {
+    getSettings().then((res) => {
+      console.log("response:" + res.enablePay);
+      //set element "webport"'s placeholder to res.webport
+      //set checkbox "enablepay" to res.enablePay
+      if (res.enablePay == true) {
+        //add checkked attribute to checkbox
+        //document.getElementById("enablepay").setAttribute("checked", "");
+      }
+      document.getElementById("serversperuser").placeholder =
+        res.serversPerUser;
+      document.getElementById("weblogo").placeholder = res.webLogo;
+      document.getElementById("trusteddomains").placeholder =
+        res.trustedDomains;
+    });
+    document.getElementById("browsertitle").placeholder = res.browserTitle;
   }
+  onMount(() => {
+    readSettings();
+  });
 </script>
 
 <div class="flex justify-center">
@@ -42,46 +40,54 @@
       {$t("settings.h.general")}
     </div>
     <form id="settingsForm">
-      <label class="label" for="3">{$t("settings.l.webport")}</label>
+      <p class="label">Quartz URL</p>
       <div class="flex space-x-2">
         <input
-          id="3"
+          id="webport"
           class="input-bordered input-primary input w-full max-w-xs bg-base-300"
           type="text"
-          placeholder="{$t('general.ex')} 3000"
-        />
-        <Helper tooltipText={$t("settings.t.webport")} />
-      </div>
-
-      <label class="label" for="3">{$t("settings.l.webtitle")}</label>
-      <div class="flex space-x-2">
-        <input
-          id="webtitle"
-          class="input-bordered input-primary input w-full max-w-xs bg-base-300"
-          type="text"
-          placeholder={$t("site.webtitle")}
+          placeholder={apiurl}
         />
       </div>
-
-      <label class="label" for="3">{$t("settings.l.webname")}</label>
+      <p class="label">Pocketbase URL</p>
       <div class="flex space-x-2">
         <input
-          id="webname"
+          id="webport"
           class="input-bordered input-primary input w-full max-w-xs bg-base-300"
           type="text"
-          placeholder={$t("navbar.webname")}
+          placeholder={pburl}
+        />
+      </div>
+      <p class="label">Maximum # of servers each user can create</p>
+      <div class="flex space-x-2">
+        <input
+          id="serversperuser"
+          class="input-bordered input-primary input w-full max-w-xs bg-base-300"
+          type="text"
+          placeholder=""
         />
       </div>
 
-      <label id="payEnable" class="label cursor-pointer">
-        <span class="label-text">{$t("settings.l.pay")}</span>
+      <p class="label">Panel Logo</p>
+      <div class="flex space-x-2">
         <input
-          id="payEnable"
-          type="checkbox"
-          class="toggle toggle-primary"
-          checked
+          id="weblogo"
+          class="input-bordered input-primary input w-full max-w-xs bg-base-300"
+          type="text"
+          placeholder=""
         />
-      </label>
+        <img
+          src="/images/sitelogo.svg"
+          width="60ch"
+          height="60ch"
+          alt="The current Panel logo."
+        />
+      </div>
+
+      <div class="cursor-pointer label">
+        <p class="label-text">Payment Features</p>
+        <input id="enablepay" type="checkbox" class="toggle toggle-primary" />
+      </div>
 
       <div class="divider text-xl font-semibold mt-8 mb-6">
         {$t("settings.h.trusted")}
@@ -91,19 +97,14 @@
         {$t("settings.desc.trusted")}
       </p>
       <input
-        id="3"
+        id="trusteddomains"
         class="input-bordered input-primary input w-full max-w-xs bg-base-300 my-4"
         type="text"
-        placeholder="ex: modrinth.com,example.com"
+        placeholder=""
       />
 
       <div>
-        <input
-          type="submit"
-          value={$t("button.save")}
-          class="btn btn-block"
-          on:click={writeSettings}
-        />
+        <input type="submit" value={$t("button.save")} class="btn btn-block" />
       </div>
     </form>
   </div>
