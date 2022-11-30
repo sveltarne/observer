@@ -12,7 +12,7 @@
   //sends user to /signin if localstorage token is ""
   if (browser) {
     if (localStorage.getItem("token") == "") {
-      goto("/signin");
+      window.location.href = "/signin";
     }
   }
   let enablePay = true;
